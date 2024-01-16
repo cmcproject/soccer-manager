@@ -1,0 +1,15 @@
+# Git
+.git
+.gitignore
+
+# Python
+src/*/__pycache__
+
+# Virtual environment
+.env/
+.venv/
+venv/
+
+# Cache files
+.pytest_cache
+.mypy_cache
