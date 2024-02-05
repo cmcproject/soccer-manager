@@ -3,25 +3,16 @@ x-app: &app-config
   image: soccer-manager-dev
   build:
     context: .
-  restart: always
   volumes:
     - .:/code
     - dev-static-data:/vol/web
   env_file:
     - .env
+  restart: always
 
 
 services:
   app:
-    # build:
-    #   context: .
-    #   args:
-    #     - DEV=true
-    # volumes:
-    #   - .:/code
-    #   - dev-static-data:/vol/web
-    # env_file:
-    #   - .env
     <<: *app-config
     environment:
       - DB_HOST=${DB_HOST}
