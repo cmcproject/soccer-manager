@@ -220,3 +220,6 @@ CACHES = {
 
 
 DEBUG_TOOLBAR_CONFIG = {"SHOW_TOOLBAR_CALLBACK": lambda _request: DEBUG}
+
+# Celery settings
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:6379/1"

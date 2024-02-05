@@ -8,6 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from common.tasks import do_something_task
+
 from .helpers import TeamMixin, create_team, get_increzed_market_value
 from .models import Player, Team
 from .serializers import PlayerSerializer, TeamCreateSerializer, TeamSerializer
@@ -191,10 +193,14 @@ class TransferPlayerAPIView(generics.CreateAPIView, TeamMixin):
 def cached(request):
     user_model = get_user_model()
     all_users = user_model.objects.all()
+
     return HttpResponse(f"<html><body><h1>{len(all_users)} users...<h1></body></html>")
 
 
 def cacheless(request):
+    # trigger Celery task
+    do_something_task.delay(3, 5)
+
     user_model = get_user_model()
     all_users = user_model.objects.all()
     return HttpResponse(f"<html><body><h1>{len(all_users)} users...<h1></body></html>")

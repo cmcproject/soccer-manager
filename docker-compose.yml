@@ -1,30 +1,42 @@
 version: "3.9"
+x-app: &app-config
+  image: soccer-manager-dev
+  build:
+    context: .
+  restart: always
+  volumes:
+    - .:/code
+    - dev-static-data:/vol/web
+  env_file:
+    - .env
+
 
 services:
   app:
-    build:
-      context: .
-      args:
-        - DEV=true
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/code
-      - dev-static-data:/vol/web
-    command: >
-      sh -c "python manage.py wait_for_db &&
-             python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+    # build:
+    #   context: .
+    #   args:
+    #     - DEV=true
+    # volumes:
+    #   - .:/code
+    #   - dev-static-data:/vol/web
+    # env_file:
+    #   - .env
+    <<: *app-config
     environment:
       - DB_HOST=${DB_HOST}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
     depends_on:
       - db
       - redis
-    env_file:
-      - .env
 
   db:
     image: postgres:16-alpine
@@ -40,6 +52,13 @@ services:
     ports:
       - "6379:6379"
 
+  celeryworkers:
+    <<: *app-config
+    command: >-
+      celery -A config worker -l DEBUG
+    depends_on:
+      - redis
+      - db
 
 volumes:
   dev-db-data:

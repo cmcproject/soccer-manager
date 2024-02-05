@@ -17,6 +17,7 @@ django-password-validators = "^1.7.3"
 django-redis = "^5.4.0"
 django-debug-toolbar = "^4.3.0"
 django-health-check = "^3.18.1"
+celery = {extras = ["redis"], version = "^5.3.6"}
 
 
 [tool.poetry.group.dev.dependencies]
