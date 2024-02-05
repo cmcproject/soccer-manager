@@ -14,10 +14,14 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import debug_toolbar
+
 from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from soccer import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -34,4 +38,13 @@ urlpatterns = [
     # apps
     path("api/user/", include("user.urls")),
     path("api/soccer/", include("soccer.urls")),
+    # debug toolbar + cache
+    path("__debug__/", include("debug_toolbar.urls")),
+    path("cached", views.cached, name="cached"),
+    path("cacheless", views.cacheless, name="cacheless"),
+    # health check
+    path(
+        "healthz/",
+        include(("health_check.urls", "health_check"), namespace="health_check"),
+    ),
 ]

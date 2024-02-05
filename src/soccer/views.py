@@ -1,4 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.http import HttpResponse
+from django.views.decorators.cache import cache_page
 from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
@@ -138,11 +141,7 @@ class TransferPlayerAPIView(generics.CreateAPIView, TeamMixin):
     def get_queryset(self):
         player_id = self.kwargs["pk"]
         current_team = self.get_current_team(self.request.user)
-        queryset = (
-            Player.objects.filter(id=player_id, transferable=True)
-            .exclude(team=current_team)
-            .first()
-        )
+        queryset = Player.objects.filter(id=player_id, transferable=True).exclude(team=current_team).first()
         return queryset
 
     @extend_schema(
@@ -186,3 +185,16 @@ class TransferPlayerAPIView(generics.CreateAPIView, TeamMixin):
             serializer = self.get_serializer(player)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+@cache_page(60 * 15)
+def cached(request):
+    user_model = get_user_model()
+    all_users = user_model.objects.all()
+    return HttpResponse(f"<html><body><h1>{len(all_users)} users...<h1></body></html>")
+
+
+def cacheless(request):
+    user_model = get_user_model()
+    all_users = user_model.objects.all()
+    return HttpResponse(f"<html><body><h1>{len(all_users)} users...<h1></body></html>")

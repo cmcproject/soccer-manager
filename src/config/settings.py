@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -32,6 +33,10 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
 ]
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,12 +46,19 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # health check - https://github.com/KristianOellegaard/django-health-check
+    "health_check",  # required
+    "health_check.db",  # stock Django health checkers
+    "health_check.cache",
+    "health_check.storage",
+    "health_check.contrib.migrations",
     # 3rd party
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
     "corsheaders",
     "django_password_validators",
+    "debug_toolbar",
     # apps
     "common",
     "user",
@@ -54,6 +66,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -192,3 +206,17 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+REDIS_HOST = os.environ.get("REDIS_HOST")
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+
+DEBUG_TOOLBAR_CONFIG = {"SHOW_TOOLBAR_CALLBACK": lambda _request: DEBUG}
