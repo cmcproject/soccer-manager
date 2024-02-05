@@ -1,14 +1,15 @@
-import logging
+from celery.utils.log import get_task_logger
 
-from celery import shared_task
+from config.celery import app
 
-logger = logging.getLogger(__name__)
+LOG = get_task_logger(__name__)
 
 
-@shared_task
-def do_something_task(arg1, arg2):
-    logger.info("Do something...")
+@app.task(bind=True, name="common.tasks.do_something_task")
+def do_something_task(self, arg1, arg2):
+    LOG.info(f">>> Do something with {arg1 + arg2}... <<<")
 
-    result = arg1 + arg2
 
-    return result
+@app.task(bind=True, name="common.tasks.periodic_task")
+def periodic_task(self):
+    LOG.info(">>> Periodic task... <<<")

@@ -51,6 +51,14 @@ services:
       - redis
       - db
 
+  celerybeat:
+    <<: *app-config
+    command: >-
+      celery -A config beat -l DEBUG
+    depends_on:
+      - redis
+      - db
+
 volumes:
   dev-db-data:
   dev-static-data:

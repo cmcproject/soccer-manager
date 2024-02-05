@@ -1,3 +1,4 @@
+import logging
 import random
 from decimal import Decimal
 
@@ -5,6 +6,8 @@ from faker import Faker
 
 from soccer.consts import TEAM_POSITIONS
 from soccer.models import Player, Team
+
+LOG = logging.getLogger(__name__)
 
 
 class TeamMixin:
@@ -35,6 +38,8 @@ def create_team(team, name, country):
             position=position,
         )
         team.players.add(player)
+
+    LOG.info(f"Team {team.name} was created.")
 
 
 def get_increzed_market_value(market_value: Decimal) -> Decimal:
